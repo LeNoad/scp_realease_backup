@@ -10,7 +10,7 @@ import kr.mmgg.scp.dto.request.CreateProjectDto;
 import kr.mmgg.scp.dto.request.UpdateProjectModify;
 import kr.mmgg.scp.dto.request.UpdateProjectModifyMember;
 import kr.mmgg.scp.dto.response.HomeViewDto;
-
+import kr.mmgg.scp.dto.response.HomeViewRealDto;
 import kr.mmgg.scp.dto.response.TeamDetailDto;
 import kr.mmgg.scp.dto.response.TeamMembersDto;
 import kr.mmgg.scp.entity.*;
@@ -21,6 +21,7 @@ import kr.mmgg.scp.repository.ChatinuserRepository;
 import kr.mmgg.scp.repository.ChatroomRepository;
 import kr.mmgg.scp.repository.ProjectRepository;
 import kr.mmgg.scp.repository.ProjectinUserRepository;
+import kr.mmgg.scp.repository.UserRepository;
 import kr.mmgg.scp.util.CustomException;
 import kr.mmgg.scp.util.CustomStatusCode;
 import kr.mmgg.scp.util.ErrorCode;
@@ -34,17 +35,20 @@ public class HomeServicelmpl implements HomeService {
 	private ChatinuserRepository chatinuserRepository;
 	private ProjectinUserRepository projectinUserRepository;
 	private ProjectRepository projectRepository;
+	private UserRepository userRepository;
 
 	// 홈화면 DTO
 	@Transactional
 	@Override
-	public ResultDto<List<HomeViewDto>> homeView(Long userId) {
+	public ResultDto<HomeViewRealDto> homeView(Long userId) {
 		List<ProjectInUser> piuUserIdList = projectinUserRepository.findByUserId(userId);
 		if (piuUserIdList.isEmpty()) {
 			throw new CustomException(ErrorCode.PROJECT_IN_USER_NOT_FOUND);
 		}
 		List<ProjectInUser> piuProjectIdList;
-		HomeViewDto homeViewDto;
+		HomeViewDto homeViewDto = null;
+		HomeViewRealDto homeViewRealDto = new HomeViewRealDto();
+		homeViewRealDto.setProfileUsername(userRepository.getById(userId).getUserNickname());
 		List<HomeViewDto> homeViewDtoList = new ArrayList<HomeViewDto>();
 		for (int i = 0; i < piuUserIdList.size(); i++) {
 			homeViewDto = new HomeViewDto();
@@ -64,8 +68,9 @@ public class HomeServicelmpl implements HomeService {
 			homeViewDto.setTasklist(tList);
 			homeViewDtoList.add(homeViewDto);
 		}
-		ResultDto<List<HomeViewDto>> rDto = new ResultDto<List<HomeViewDto>>();
-		return rDto.makeResult(CustomStatusCode.LOOKUP_SUCCESS, homeViewDtoList, "projects");
+		homeViewRealDto.setProjects(homeViewDtoList);
+		ResultDto<HomeViewRealDto> rDto = new ResultDto<HomeViewRealDto>();
+		return rDto.makeResult(CustomStatusCode.LOOKUP_SUCCESS, homeViewRealDto, "homeView");
 	}
 
 	// 프로젝트 생성

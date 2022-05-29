@@ -7,6 +7,7 @@
 	"message": "message",
     "result":
     {
+    	  "profileUsername" : "String",
         "projects":
         [
             {

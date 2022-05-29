@@ -19,7 +19,6 @@
     ] 
 }
 ```
-
 ### output
 ``` json
 {
@@ -27,7 +26,6 @@
 	"message": "message"
 }
 ```
-
 # GET /alltask/{projectId}
 ## SCP-301 프로젝트 상세 - 전체 할일
 ### output 2022-04-26 수정
